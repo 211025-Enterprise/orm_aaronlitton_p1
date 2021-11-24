@@ -175,9 +175,10 @@ public class FieldDao extends Dao{
             IntStream.range(1, columnList.size())
                     .mapToObj(i -> ", \"" + columnList.get(i) + "\"")
                     .forEach(stmt::append);
+            arguments--;
         }
         stmt.append(") values (?");
-        IntStream.range(0, arguments - 1)
+        IntStream.range(0, arguments)
                 .mapToObj(i -> ", ?")
                 .forEach(stmt::append);
         stmt.append(")");
@@ -248,17 +249,15 @@ public class FieldDao extends Dao{
                 .append("\" set \"");
         List<String> columnList = instanceDeconstructor.getFieldList();
         stmt.append(columnList.get(0))
-                .append("= ?");
+                .append("\"= ?");
         for(int i = 1; i < columnList.size(); i++){
-            stmt.append(", ")
+            stmt.append(", \"")
                     .append(columnList.get(i))
-                    .append("= ?");
+                    .append("\"= ?");
         }
-        stmt.append(instanceDeconstructor.getTableName())
-                .append("\" where \"")
+        stmt.append(" where \"")
                 .append(instanceDeconstructor.getPrimarykey())
                 .append("\" = ?");
-
         PreparedStatement preparedStatement;
         Field field;
         try(Connection dbConnection = ConnectionSingleton.getInstance()){
@@ -268,8 +267,10 @@ public class FieldDao extends Dao{
                 field.setAccessible(true);
                 preparedStatement.setObject(i+1,field.get(instance));
             }
-            instance.getClass().getDeclaredField(instanceDeconstructor.getPrimarykey()).setAccessible(true);
-            preparedStatement.setObject(columnList.size()+1,instance.getClass().getDeclaredField(instanceDeconstructor.getPrimarykey()).get(instance));//instanceid);
+            field = instance.getClass().getDeclaredField(instanceDeconstructor.getPrimarykey());
+            field.setAccessible(true);
+            instanceDeconstructor.getPrimarykey();
+            preparedStatement.setObject(columnList.size()+1,field.get(instance));//instanceid);
             preparedStatement.execute();
             preparedStatement.close();
             return true;
