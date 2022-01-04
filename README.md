@@ -28,9 +28,11 @@ To-do list:
 #Getting Started
 
 Clone the ORM and package as a maven dependency (Intelij + Maven build was used for this)
+
 `git clone https://github.com/211025-Enterprise/orm_aaronlitton_p1.git`
 
 Clone the if necessary, or hook up to your own program
+
 `git clone https://github.com/211025-Enterprise/webapp_aaronlitton_p1.git`
 
 #How to use
